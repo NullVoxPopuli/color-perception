@@ -104,6 +104,9 @@
     "./*": "./app/*"
   },
   "dependencies": {
-    "ember-resources": "^7.0.3"
+    "color-name-list": "^11.0.0",
+    "ember-primitives": "^0.27.1",
+    "ember-resources": "^7.0.3",
+    "nearest-color": "^0.4.4"
   }
 }
