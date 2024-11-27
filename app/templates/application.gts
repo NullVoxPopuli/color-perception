@@ -1,6 +1,7 @@
 import Route from 'ember-route-template';
 import { pageTitle } from 'ember-page-title';
-import { qp } from './qp';
+import { Gradient } from './components/gradient';
+import { qp } from './components/qp';
 
 const defaultStart = '#ff0000';
 const defaultEnd = '#ff00ff';
@@ -11,24 +12,6 @@ export default Route(
 
     {{outlet}}
 
-    <div
-      class="gradient"
-      style="
-        --start: {{qp 'start' defaultStart}};
-        --end: {{qp 'end' defaultEnd}};
-      "
-    ></div>
-
-    <style>
-      .gradient {
-        height: 100dvh;
-        width: 100dvw;
-        background-image: linear-gradient(
-          in oklch to right,
-          var(--start),
-          var(--end)
-        );
-      }
-    </style>
+    <Gradient @start={{qp "start" defaultStart}} @end={{qp "end" defaultEnd}} />
   </template>
 );

@@ -3,8 +3,9 @@ import { resource, resourceFactory } from 'ember-resources';
 export function qp(name: string, defaultValue?: string) {
   return resource(({ owner }) => {
     const router = owner.lookup('service:router');
+    const qpValue = router.currentRoute?.queryParams[name];
 
-    return router.currentRoute?.queryParams[name] ?? defaultValue;
+    return String(qpValue) || defaultValue || '';
   });
 }
 
