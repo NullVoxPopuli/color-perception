@@ -72,7 +72,7 @@ class Stops extends Component<{ Element: HTMLDivElement }> {
   @use end = qp('end');
 
   get stops() {
-    const interpolator = interpolate([this.start, this.end], 'lch');
+    const interpolator = interpolate([this.start, this.end], 'oklch');
     const colors = samples(5).map(interpolator);
     console.log({ colors });
     return colors;
@@ -85,8 +85,8 @@ class Stops extends Component<{ Element: HTMLDivElement }> {
           style="
             --l: {{stop.l}};
             --c: {{stop.c}};
-            --h: {{stop.h}};
-            background-color: lch(var(--l) var(--c) var(--h));"
+            --h: {{stop.h}}deg;
+          "
         ></div>
       {{/each}}
     </div>
@@ -100,8 +100,9 @@ class Stops extends Component<{ Element: HTMLDivElement }> {
         width: 2rem;
         height: 100%;
         --lch: var(--l) var(--c) var(--h);
-        /* border-left: 1px solid lch(calc(var(--l) * 0.75) var(--c) var(--h)); */
-        /* border-right: 1px solid lch(calc(var(--l) * 0.75) var(--c) var(--h)); */
+        background-color: oklch(var(--lch));
+        border-left: 1px solid lch(calc(var(--l) * 0.15) var(--c) var(--h));
+        border-right: 1px solid lch(calc(var(--l) * 0.15) var(--c) var(--h));
       }
     </style>
   </template>
