@@ -1,22 +1,23 @@
 import Route from 'ember-route-template';
 import { Gradient } from './components/gradient';
 import { qp } from './components/qp';
-import { defaultEnd, defaultStart, nearestName } from './components/utils';
+import { nearestName } from './components/utils';
 import { Header } from './components/header';
+import { LinkTo } from '@ember/routing';
 
 export default Route(
   <template>
-    <Gradient @start={{qp "start" defaultStart}} @end={{qp "end" defaultEnd}}>
+    <Gradient @start={{qp "start"}} @end={{qp "end"}}>
 
-      {{#let (nearestName (qp "start" defaultStart)) as |name|}}
-        <h1>Is my {{name}} your {{name}}?</h1>
+      {{#let (nearestName (qp "start")) as |name|}}
+        <h1>Is my "{{name}}" your "{{name}}"?</h1>
       {{/let}}
       <div class="wrapper">
 
         <Header>
           <nav>
-            <a href="/configure">Change Colors</a>
-            <a href="/bisect">Begin Test</a>
+            <LinkTo @route="configure">Change Colors</LinkTo>
+            <LinkTo @route="bisect">Begin Test</LinkTo>
           </nav>
         </Header>
       </div>
@@ -31,6 +32,7 @@ export default Route(
         width: 100dvw;
       }
       h1 {
+        padding: 1rem;
         z-index: 2;
         margin: 0 auto;
         font-size: 3rem;

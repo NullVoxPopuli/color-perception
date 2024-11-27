@@ -47,6 +47,7 @@
     "@glint/template": "1.4.1-unstable.34c4510",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.8",
+    "@types/culori": "^2.1.1",
     "@types/eslint__js": "^8.42.3",
     "@types/qunit": "^2.19.12",
     "@types/rsvp": "^4.0.9",
@@ -105,6 +106,8 @@
   },
   "dependencies": {
     "color-name-list": "^11.0.0",
+    "color-space": "^2.0.1",
+    "culori": "^4.0.1",
     "ember-primitives": "^0.27.1",
     "ember-resources": "^7.0.3",
     "nearest-color": "^0.4.4"
