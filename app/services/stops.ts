@@ -8,7 +8,10 @@ import {
   parseHex,
   convertLabToLch,
   convertLrgbToOklab,
+  type Oklch,
 } from 'culori';
+
+export const SEARCH_SIZE = 111;
 
 export default class Stops extends Service {
   // Something is weird about the compilation
@@ -28,15 +31,15 @@ export default class Stops extends Service {
   }
 
   get startOKLCH() {
-    let parsed = parseHex(this.start);
-    let oklab = convertLrgbToOklab(parsed);
-    let oklch = convertLabToLch(oklab);
+    const parsed = parseHex(this.start);
+    const oklab = convertLrgbToOklab(parsed);
+    const oklch = convertLabToLch(oklab);
     return oklch;
   }
   get endOKLCH() {
-    let parsed = parseHex(this.end);
-    let oklab = convertLrgbToOklab(parsed);
-    let oklch = convertLabToLch(oklab);
+    const parsed = parseHex(this.end);
+    const oklab = convertLrgbToOklab(parsed);
+    const oklch = convertLabToLch(oklab);
     return oklch;
   }
 
@@ -60,22 +63,29 @@ export default class Stops extends Service {
     return this.previewSamples[2];
   }
 
+  @cached
+  get searchSpace() {
+    const search = samples(SEARCH_SIZE + 2).map(this.interpolation);
+
+    return search.slice(1, -1);
+  }
+
   /**
    * return an exclusive range
    * for asking the viewer what
    * colors are
    */
-  toCheck = (start, end) => {
-    let interpolation = interpolate([start, end], 'oklch');
+  toCheck = (start: Oklch, end: Oklch) => {
+    const interpolation = interpolate([start, end], 'oklch');
 
-    let range = samples(4).map(interpolation);
+    const range = samples(4).map(interpolation);
 
     return range.slice(1, -1);
   };
 
-  middleOf = (start, end) => {
-    let interpolation = interpolate([start, end], 'oklch');
-    let range = samples(3).map(interpolation);
+  middleOf = (start: Oklch, end: Oklch) => {
+    const interpolation = interpolate([start, end], 'oklch');
+    const range = samples(3).map(interpolation);
 
     return range[1];
   };

@@ -42,3 +42,48 @@ export function appValue<
 }
 
 resourceFactory(appValue);
+
+/**
+ * Randomly chooses a value from the first third or the last third,
+ * but ignores the middle third.
+ */
+export function selectRandomNonCenter(start: number, end: number): number {
+  const rand = Math.random();
+  const range = end - start;
+  const oneThird = (end - start) / 3;
+  const lastThird = (range / 3) * 2;
+  const useFirstThird = rand < 0.5;
+  const useLastThird = rand >= 0.5;
+
+  if (useFirstThird) {
+    const result = rand * (oneThird - start) + start;
+
+    return Math.round(result);
+  }
+
+  if (useLastThird) {
+    const result = rand * (end - lastThird) + lastThird;
+
+    return Math.round(result);
+  }
+
+  assert(`Invalid random value ${String(rand)}`);
+}
+
+/**
+ * Return the integers in range of the middle third
+ * between start and end.
+ */
+export function middleThird(start: number, end: number) {
+  const range = end - start;
+  const third = range / 3;
+
+  const result = new Set();
+
+  for (let i = 0; i < third; i++) {
+    const value = Math.round(start + third + i);
+    result.add(value);
+  }
+
+  return result;
+}

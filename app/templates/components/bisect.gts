@@ -10,6 +10,9 @@ import type { Oklch } from 'culori';
 import { differenceHueChroma } from 'culori';
 import { assert } from '@ember/debug';
 import { TrackedArray } from 'tracked-built-ins';
+import type RouterService from '@ember/routing/router-service';
+import { SEARCH_SIZE } from 'color-perception/services/stops';
+import { selectRandomNonCenter } from 'color-perception/utils';
 
 export interface Choice {
   color: Oklch;
@@ -25,42 +28,13 @@ export class Bisect extends Component<{
   @service('stops') declare stops: Stops;
   @service('router') declare router: RouterService;
 
+  @tracked currentIndex = selectRandomNonCenter(0, SEARCH_SIZE);
   choices: Choice[] = new TrackedArray();
-
-  @cached
-  get startingPair() {
-    let starting = this.stops.toCheck(this.stops.start, this.stops.end);
-
-    if (Math.random() < 0.5) {
-      starting = starting.reverse();
-    }
-
-    this.#recordPair(starting);
-
-    return starting;
-  }
-
-  #pairs = new Map<Oklch, [Oklch, Oklch]>();
-  #recordPair(pair: [Oklch, Oklch]) {
-    this.#pairs.set(pair[0], pair);
-    this.#pairs.set(pair[1], pair);
-  }
-  #opposing(color: Oklch) {
-    let pair = this.#pairs.get(color);
-    let opposing = pair.find((x) => x !== color);
-
-    assert(`Could not find opposing`, opposing);
-
-    return opposing;
-  }
-
-  @cached
-  get queue() {
-    return new TrackedArray(this.startingPair);
-  }
+  seen = new Set<number>([this.currentIndex]);
+  queue = new TrackedArray([this.currentIndex]);
 
   get currentColor() {
-    const value = this.queue[0];
+    const value = this.stops.searchSpace[this.currentIndex];
 
     assert(`[Bug]: no value for index: ${String(this.currentIndex)}`, value);
 
@@ -82,34 +56,15 @@ export class Bisect extends Component<{
   };
 
   next = (chose: 'left' | 'right') => {
-    let currentColor = this.currentColor;
-    let currentPair = this.#pairs.get(currentColor);
+    const middle = SEARCH_SIZE / 2;
+    const middles = [Math.ceil(middle), Math.floor(middle)];
+    const currentIndex = this.currentIndex;
+    const currentColor = this.currentColor;
 
-    /**
-     * NOTE: max distance is 0.6
-     */
+    const isLeft = currentIndex < middle;
+    const isRight = currentIndex > middle;
 
-    let differenceOfPair = differenceHueChroma(...currentPair);
-    let middleFromLeft = differenceHueChroma(
-      this.stops.middleColor,
-      this.stops.startOKLCH
-    );
-    let middleFromRight = differenceHueChroma(
-      this.stops.middleColor,
-      this.stops.endOKLCH
-    );
-
-    let distanceToLeft = differenceHueChroma(
-      currentColor,
-      this.stops.startOKLCH
-    );
-    let distanceOfRight = differenceHueChroma(
-      currentColor,
-      this.stops.endOKLCH
-    );
-
-    let isLeft = distanceToLeft < middleFromLeft;
-    let isRight = distanceOfRight < middleFromRight;
+    const isWithin2OfMiddle = Math.abs(currentIndex - middle) <= 2;
 
     this.choices.push({
       color: currentColor,
@@ -121,16 +76,13 @@ export class Bisect extends Component<{
     console.log({
       isLeft,
       isRight,
-      differenceOfPair,
-      queue: [...this.queue],
     });
 
-    if (Math.abs(differenceOfPair) < 0.05) {
+    if (isWithin2OfMiddle) {
       console.debug(
         `Difference of current pair is very small. Not adding more colors`
       );
       // Pair is very narrow already, no need to add more colors
-      this.queue.shift();
       this.maybeFinish();
       return;
     }
@@ -143,8 +95,7 @@ export class Bisect extends Component<{
             `Color chosen *is* more ${this.leftName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          let stops = this.stops.toCheck(...currentPair);
-          this.#recordPair(stops);
+          const stops = this.stops.toCheck(...currentPair);
           this.queue.push(...stops);
           break;
         }
@@ -153,12 +104,12 @@ export class Bisect extends Component<{
           console.debug(
             `Color chosen *is not* more ${this.leftName}. Next colors will be closer to the left side (${this.leftName})`
           );
-          let middle = this.stops.middleOf(...currentPair);
-          let stops = this.stops.toCheck(middle, this.stops.startOKLCH);
-          this.#recordPair(stops);
+          const middle = this.stops.middleOf(...currentPair);
+          const stops = this.stops.toCheck(middle, this.stops.startOKLCH);
           this.queue.push(...stops);
           break;
         }
+        break;
       }
       case 'right': {
         // Incorrect
@@ -166,9 +117,8 @@ export class Bisect extends Component<{
           console.debug(
             `Color chosen *is not* more ${this.rightName}. Next colors will be closer to the left side (${this.rightName})`
           );
-          let middle = this.stops.middleOf(...currentPair);
-          let stops = this.stops.toCheck(middle, this.stops.endOKLCH);
-          this.#recordPair(stops);
+          const middle = this.stops.middleOf(...currentPair);
+          const stops = this.stops.toCheck(middle, this.stops.endOKLCH);
           this.queue.push(...stops);
           break;
         }
@@ -178,8 +128,7 @@ export class Bisect extends Component<{
             `Color chosen *is* more ${this.rightName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          let stops = this.stops.toCheck(...currentPair);
-          this.#recordPair(stops);
+          const stops = this.stops.toCheck(...currentPair);
           this.queue.push(...stops);
           break;
         }
@@ -195,7 +144,8 @@ export class Bisect extends Component<{
   maybeFinish() {
     if (this.queue.length === 0) {
       // We're done, calculate results
-      return this.finish();
+      this.finish();
+      return;
     }
   }
 
