@@ -60,7 +60,6 @@ export class Window {
 
   addStops() {
     const stop = selectRandomBetween(this.left, this.right);
-    console.log({ stop });
     return this.queue.push(stop);
   }
 

@@ -12,7 +12,6 @@ import { assert } from '@ember/debug';
 import { TrackedArray } from 'tracked-built-ins';
 import type RouterService from '@ember/routing/router-service';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
-import { link } from 'reactiveweb/link';
 import { Window } from './window';
 import { registerDestructor } from '@ember/destroyable';
 import type Owner from '@ember/owner';
@@ -41,7 +40,7 @@ export class Bisect extends Component<Signature> {
   @service('stops') declare stops: Stops;
   @service('router') declare router: RouterService;
 
-  @link(Window) declare window: Window;
+  window = new Window();
 
   constructor(owner: Owner, args: Signature['Args']) {
     super(owner, args);
