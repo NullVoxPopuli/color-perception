@@ -1,5 +1,6 @@
 import { resource, resourceFactory } from 'ember-resources';
 import { assert } from '@ember/debug';
+import type { Registry } from '@ember/service';
 
 // const defaultStart = '#ff0000';
 // const defaultEnd = '#ff00ff';
@@ -28,3 +29,16 @@ export function qp(name: string) {
 
 // Needed until ember natively supports resources
 resourceFactory(qp);
+
+export function appValue<
+  Name extends keyof Registry & string,
+  Property extends keyof Registry[Name],
+>(serviceName: Name, property: Property): Registry[Name][Property] {
+  return resource(({ owner }) => {
+    return owner.lookup(`service:${serviceName}`)?.[
+      property
+    ] as Registry[Name][Property];
+  });
+}
+
+resourceFactory(appValue);

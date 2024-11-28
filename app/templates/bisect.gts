@@ -1,15 +1,12 @@
 import Route from 'ember-route-template';
-import { qp } from './components/qp';
 import { pageTitle } from 'ember-page-title';
 import { Bisect } from './components/bisect';
-
-const defaultStart = '#ff0000';
-const defaultEnd = '#ff00ff';
+import { qp } from 'color-perception/utils';
 
 export default Route(
   <template>
     {{pageTitle "Bisect"}}
 
-    <Bisect @start={{qp "start" defaultStart}} @end={{qp "end" defaultEnd}} />
+    <Bisect @start={{qp "start"}} @end={{qp "end"}} />
   </template>
 );

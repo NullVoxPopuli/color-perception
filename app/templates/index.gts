@@ -1,9 +1,9 @@
 import Route from 'ember-route-template';
 import { Gradient } from './components/gradient';
-import { qp } from './components/qp';
 import { nearestName } from './components/utils';
 import { Header } from './components/header';
 import { LinkTo } from '@ember/routing';
+import { qp } from 'color-perception/utils';
 
 export default Route(
   <template>

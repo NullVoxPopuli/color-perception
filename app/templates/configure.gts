@@ -1,22 +1,14 @@
 import Route from 'ember-route-template';
-import {
-  easingMidpoint,
-  interpolate,
-  samples,
-  lerp,
-  interpolatorPiecewise,
-  easingSmoothstep,
-} from 'culori';
 import { pageTitle } from 'ember-page-title';
 import Component from '@glimmer/component';
 import { service } from '@ember/service';
 import { Gradient } from './components/gradient';
-import { qp } from './components/qp';
 import { Form as WrappedForm } from 'ember-primitives/components/form';
 import type RouterService from '@ember/routing/router-service';
 import { Header } from './components/header';
 import { LinkTo } from '@ember/routing';
-import { use } from 'ember-resources';
+import { Stops } from './components/stops';
+import { appValue, qp } from 'color-perception/utils';
 
 export default Route(
   <template>
@@ -25,7 +17,7 @@ export default Route(
     <Gradient @start={{qp "start"}} @end={{qp "end"}}>
       <Form />
 
-      <Stops class="stops" />
+      <Stops class="stops" @stops={{appValue "stops" "previewSamples"}} />
 
       <Header>
         <nav>
@@ -66,47 +58,6 @@ export default Route(
     </style>
   </template>
 );
-
-class Stops extends Component<{ Element: HTMLDivElement }> {
-  @use start = qp('start');
-  @use end = qp('end');
-
-  get stops() {
-    const interpolator = interpolate([this.start, this.end], 'oklch');
-    const colors = samples(5).map(interpolator);
-    console.log({ colors });
-    return colors;
-  }
-  <template>
-    <div ...attributes class="marker-wrapper">
-      {{#each this.stops as |stop|}}
-        <div
-          class="marker"
-          style="
-            --l: {{stop.l}};
-            --c: {{stop.c}};
-            --h: {{stop.h}}deg;
-          "
-        ></div>
-      {{/each}}
-    </div>
-    <style>
-      .marker-wrapper {
-        display: grid;
-        justify-content: space-between;
-        grid-auto-flow: column;
-      }
-      .marker {
-        width: 2rem;
-        height: 100%;
-        --lch: var(--l) var(--c) var(--h);
-        background-color: oklch(var(--lch));
-        border-left: 1px solid lch(calc(var(--l) * 0.15) var(--c) var(--h));
-        border-right: 1px solid lch(calc(var(--l) * 0.15) var(--c) var(--h));
-      }
-    </style>
-  </template>
-}
 
 class Form extends Component {
   @service declare router: RouterService;
