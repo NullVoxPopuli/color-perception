@@ -12,4 +12,6 @@ export default class Router extends EmberRouter {
 Router.map(function () {
   this.route('bisect');
   this.route('configure');
+  this.route('results');
+  this.route('debug');
 });

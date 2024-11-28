@@ -2,7 +2,13 @@ import Service from '@ember/service';
 import { cached } from '@glimmer/tracking';
 import { qp } from 'color-perception/utils';
 import { use } from 'ember-resources';
-import { interpolate, samples } from 'culori';
+import {
+  interpolate,
+  samples,
+  parseHex,
+  convertLabToLch,
+  convertLrgbToOklab,
+} from 'culori';
 
 export default class Stops extends Service {
   // Something is weird about the compilation
@@ -21,6 +27,19 @@ export default class Stops extends Service {
     return this.#end.current;
   }
 
+  get startOKLCH() {
+    let parsed = parseHex(this.start);
+    let oklab = convertLrgbToOklab(parsed);
+    let oklch = convertLabToLch(oklab);
+    return oklch;
+  }
+  get endOKLCH() {
+    let parsed = parseHex(this.end);
+    let oklab = convertLrgbToOklab(parsed);
+    let oklch = convertLabToLch(oklab);
+    return oklch;
+  }
+
   @cached
   get interpolation() {
     return interpolate([this.start, this.end], 'oklch');
@@ -37,14 +56,29 @@ export default class Stops extends Service {
   }
 
   @cached
-  get searchSpace() {
-    const wide = samples(99).map(this.interpolation);
-
-    // ignore the ends, because (hopefully)
-    // the viewer already knows these colors
-    // (they're also in the URL)
-    return wide.slice(1, -1);
+  get middleColor() {
+    return this.previewSamples[2];
   }
+
+  /**
+   * return an exclusive range
+   * for asking the viewer what
+   * colors are
+   */
+  toCheck = (start, end) => {
+    let interpolation = interpolate([start, end], 'oklch');
+
+    let range = samples(4).map(interpolation);
+
+    return range.slice(1, -1);
+  };
+
+  middleOf = (start, end) => {
+    let interpolation = interpolate([start, end], 'oklch');
+    let range = samples(3).map(interpolation);
+
+    return range[1];
+  };
 }
 
 declare module '@ember/service' {

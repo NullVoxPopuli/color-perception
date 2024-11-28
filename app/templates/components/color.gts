@@ -14,8 +14,6 @@ export const Color = <template>
 
   <style>
     .color {
-      height: 100dvh;
-      width: 100dvw;
       --lch: var(--l) var(--c) var(--h);
       background-color: oklch(var(--lch));
     }
