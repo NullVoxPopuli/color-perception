@@ -32,12 +32,16 @@ export default class Stops extends Service {
 
   get startOKLCH() {
     const parsed = parseHex(this.start);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const oklab = convertLrgbToOklab(parsed);
     const oklch = convertLabToLch(oklab, 'oklch');
     return oklch;
   }
   get endOKLCH() {
     const parsed = parseHex(this.end);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const oklab = convertLrgbToOklab(parsed);
     const oklch = convertLabToLch(oklab, 'oklch');
     return oklch;

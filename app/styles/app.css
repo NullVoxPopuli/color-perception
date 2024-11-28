@@ -4,12 +4,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family:
-    "System UI",
-    System,
-    Helvetica,
-    Arial,
-    sans-serif;
+  font-family: 'System UI', System, Helvetica, Arial, sans-serif;
 }
 
 * {
