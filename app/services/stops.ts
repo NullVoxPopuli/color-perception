@@ -22,15 +22,28 @@ export default class Stops extends Service {
   }
 
   @cached
+  get interpolation() {
+    return interpolate([this.start, this.end], 'oklch');
+  }
+
+  @cached
   get previewSamples() {
-    const interpolator = interpolate([this.start, this.end], 'oklch');
-    return samples(5).map(interpolator);
+    return samples(5).map(this.interpolation);
   }
 
   @cached
   get range() {
-    const interpolator = interpolate([this.start, this.end], 'oklch');
-    return [...samples(2).map(interpolator)];
+    return samples(2).map(this.interpolation);
+  }
+
+  @cached
+  get searchSpace() {
+    const wide = samples(99).map(this.interpolation);
+
+    // ignore the ends, because (hopefully)
+    // the viewer already knows these colors
+    // (they're also in the URL)
+    return wide.slice(1, -1);
   }
 }
 

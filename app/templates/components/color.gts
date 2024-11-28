@@ -3,13 +3,14 @@ import type { Oklch } from 'culori';
 
 export const Color = <template>
   <div
+    ...attributes
     class="color"
     style="
       --l: {{@value.l}};
       --c: {{@value.c}};
       --h: {{@value.h}}deg;
     "
-  ></div>
+  >{{yield}}</div>
 
   <style>
     .color {
@@ -20,7 +21,11 @@ export const Color = <template>
     }
   </style>
 </template> satisfies TOC<{
+  Element: HTMLDivElement;
   Args: {
     value: Oklch;
+  };
+  Blocks: {
+    default: [];
   };
 }>;
