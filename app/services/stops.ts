@@ -33,13 +33,13 @@ export default class Stops extends Service {
   get startOKLCH() {
     const parsed = parseHex(this.start);
     const oklab = convertLrgbToOklab(parsed);
-    const oklch = convertLabToLch(oklab);
+    const oklch = convertLabToLch(oklab, 'oklch');
     return oklch;
   }
   get endOKLCH() {
     const parsed = parseHex(this.end);
     const oklab = convertLrgbToOklab(parsed);
-    const oklch = convertLabToLch(oklab);
+    const oklch = convertLabToLch(oklab, 'oklch');
     return oklch;
   }
 
@@ -65,7 +65,7 @@ export default class Stops extends Service {
 
   @cached
   get searchSpace() {
-    const search = samples(SEARCH_SIZE + 2).map(this.interpolation);
+    const search = samples(SEARCH_SIZE + 3).map(this.interpolation);
 
     return search.slice(1, -1);
   }

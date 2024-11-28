@@ -1,27 +1,24 @@
 import Route from 'ember-route-template';
-import { differenceHueChroma } from 'culori';
 import { pageTitle } from 'ember-page-title';
-import { Bisect, type Choice as Chosen } from './components/bisect';
+import { Bisect } from './components/bisect';
 import { qp } from 'color-perception/utils';
 import Component from '@glimmer/component';
 import { Gradient } from './components/gradient';
-import { Color } from './components/color';
+import { Choice } from './components/choice';
 import type Stops from 'color-perception/services/stops';
 import { service } from '@ember/service';
+import { Window } from './components/window';
+import { SEARCH_SIZE } from 'color-perception/services/stops';
 
 export default Route(
   <template>
     {{pageTitle "Debug"}}
 
     <Gradient @start={{qp "start"}} @end={{qp "end"}}>
-      <Bisect
-        @start={{qp "start"}}
-        @end={{qp "end"}}
-        @debug={{true}}
-        as |choices|
-      >
+      <Bisect @start={{qp "start"}} @end={{qp "end"}} @debug={{true}} as |x|>
         <div class="debug-overlay">
-          {{#each choices as |choice|}}
+          <Range @window={{x.window}} />
+          {{#each x.choices as |choice|}}
             <Choice @choice={{choice}} />
           {{/each}}
         </div>
@@ -31,7 +28,7 @@ export default Route(
     <style>
       .debug-overlay {
         position: fixed;
-        top: 40%;
+        top: 200px;
         height: 300px;
         left: 0;
         right: 0;
@@ -42,45 +39,53 @@ export default Route(
         .color {
           width: 3rem;
           height: 3rem;
+          font-size: 2rem;
+          text-shadow: 0px 1px 0px black;
           display: flex;
           align-items: center;
           justify-content: center;
           border: 1px solid;
         }
+
+        .line.left {
+          height: 100dvh;
+          border-left: 1px solid;
+        }
+        .line.right {
+          height: 100dvh;
+          border-right: 1px solid;
+          transform: translateX(-100%);
+        }
       }
       .color {
-        width: 20%;
-        height: 20%;
+        width: 200px;
+        height: 200px;
+        border: 1px solid;
       }
     </style>
   </template>
 );
 
-class Choice extends Component<{ Args: { choice: Chosen } }> {
+class Range extends Component<{ Args: { window: Window } }> {
   @service declare stops: Stops;
 
-  get position() {
-    const value = differenceHueChroma(
-      this.args.choice.color,
-      this.stops.startOKLCH
-    );
-
-    return Math.abs(value * 100) / 0.6;
+  get leftPosition() {
+    const left = this.args.window.left;
+    return (left / SEARCH_SIZE) * 100;
   }
-
-  get yPosition() {
-    return Math.random() * 200;
+  get rightPosition() {
+    const right = this.args.window.right;
+    return (right / SEARCH_SIZE) * 100;
   }
 
   <template>
     <div
-      style="
-        position: absolute;
-        left: {{this.position}}%;
-        top: {{this.yPosition}}px;
-      "
-    >
-      <Color @value={{@choice.color}}>{{@choice.isCorrect}}</Color>
-    </div>
+      class="line left"
+      style="position: absolute; left: {{this.leftPosition}}%;"
+    >{{@window.left}}</div>
+    <div
+      class="line right"
+      style="position: absolute; left: {{this.rightPosition}}%;"
+    >{{@window.right}}</div>
   </template>
 }

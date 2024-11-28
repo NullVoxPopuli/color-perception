@@ -5,40 +5,47 @@ import { service } from '@ember/service';
 import { Header } from './header';
 import { nearestName } from './utils';
 import { on } from '@ember/modifier';
-import { cached, tracked } from '@glimmer/tracking';
+import { hash } from '@ember/helper';
 import type { Oklch } from 'culori';
-import { differenceHueChroma } from 'culori';
+import { formatHex } from 'culori';
 import { assert } from '@ember/debug';
 import { TrackedArray } from 'tracked-built-ins';
 import type RouterService from '@ember/routing/router-service';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
-import { selectRandomNonCenter } from 'color-perception/utils';
+import { link } from 'reactiveweb/link';
+import { Window } from './window';
 
 export interface Choice {
   color: Oklch;
   choice: 'left' | 'right';
+  index: number;
   isCorrect: boolean;
   actual: 'left' | 'right';
 }
 
 export class Bisect extends Component<{
   Args: { start: string; end: string; debug: boolean };
-  Blocks: { default: [choices: Choice[], currentColor: Oklch] };
+  Blocks: {
+    default: [data: { choices: Choice[]; color: Oklch; window: Window }];
+  };
 }> {
   @service('stops') declare stops: Stops;
   @service('router') declare router: RouterService;
 
-  @tracked currentIndex = selectRandomNonCenter(0, SEARCH_SIZE);
+  @link(Window) declare window: Window;
+
   choices: Choice[] = new TrackedArray();
-  seen = new Set<number>([this.currentIndex]);
-  queue = new TrackedArray([this.currentIndex]);
 
   get currentColor() {
-    const value = this.stops.searchSpace[this.currentIndex];
+    const value = this.stops.searchSpace[this.window.current];
 
-    assert(`[Bug]: no value for index: ${String(this.currentIndex)}`, value);
+    assert(`[Bug]: no value for index: ${String(this.window.current)}`, value);
 
     return value;
+  }
+
+  get errors() {
+    return this.choices.filter((choice) => !choice.isCorrect);
   }
 
   get leftName() {
@@ -57,18 +64,16 @@ export class Bisect extends Component<{
 
   next = (chose: 'left' | 'right') => {
     const middle = SEARCH_SIZE / 2;
-    const middles = [Math.ceil(middle), Math.floor(middle)];
-    const currentIndex = this.currentIndex;
+    const currentIndex = this.window.current;
     const currentColor = this.currentColor;
 
     const isLeft = currentIndex < middle;
     const isRight = currentIndex > middle;
 
-    const isWithin2OfMiddle = Math.abs(currentIndex - middle) <= 2;
-
     this.choices.push({
       color: currentColor,
       choice: chose,
+      index: currentIndex,
       isCorrect: (chose === 'left' && isLeft) || (chose === 'right' && isRight),
       actual: isLeft ? 'left' : 'right',
     });
@@ -77,11 +82,16 @@ export class Bisect extends Component<{
       isLeft,
       isRight,
     });
+    this.window.debug();
 
-    if (isWithin2OfMiddle) {
-      console.debug(
-        `Difference of current pair is very small. Not adding more colors`
-      );
+    if (this.errors.length > 3) {
+      console.debug(`Answered incorrectly 4 times. We're probably done.`);
+      this.maybeFinish();
+      return;
+    }
+
+    if (this.window.range < 3) {
+      console.debug(`Window size is small. Not adding more colors`);
       // Pair is very narrow already, no need to add more colors
       this.maybeFinish();
       return;
@@ -95,8 +105,8 @@ export class Bisect extends Component<{
             `Color chosen *is* more ${this.leftName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          const stops = this.stops.toCheck(...currentPair);
-          this.queue.push(...stops);
+          this.window.anchorLeft();
+          this.window.addStops();
           break;
         }
         // Incorrect
@@ -104,9 +114,8 @@ export class Bisect extends Component<{
           console.debug(
             `Color chosen *is not* more ${this.leftName}. Next colors will be closer to the left side (${this.leftName})`
           );
-          const middle = this.stops.middleOf(...currentPair);
-          const stops = this.stops.toCheck(middle, this.stops.startOKLCH);
-          this.queue.push(...stops);
+          this.window.slideLeft(this.window.askingRange / 2);
+          this.window.addStops();
           break;
         }
         break;
@@ -115,11 +124,10 @@ export class Bisect extends Component<{
         // Incorrect
         if (isLeft) {
           console.debug(
-            `Color chosen *is not* more ${this.rightName}. Next colors will be closer to the left side (${this.rightName})`
+            `Color chosen *is not* more ${this.rightName}. Next colors will be closer to the right side (${this.rightName})`
           );
-          const middle = this.stops.middleOf(...currentPair);
-          const stops = this.stops.toCheck(middle, this.stops.endOKLCH);
-          this.queue.push(...stops);
+          this.window.slideRight(this.window.askingRange / 2);
+          this.window.addStops();
           break;
         }
         // Correct
@@ -128,21 +136,25 @@ export class Bisect extends Component<{
             `Color chosen *is* more ${this.rightName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          const stops = this.stops.toCheck(...currentPair);
-          this.queue.push(...stops);
+          this.window.anchorRight();
+          this.window.addStops();
           break;
         }
       }
     }
 
-    this.queue.shift();
+    const next = this.window.next();
+
     console.log(this.choices);
+    if (next) {
+      return;
+    }
 
     this.maybeFinish();
   };
 
   maybeFinish() {
-    if (this.queue.length === 0) {
+    if (this.window.queue.length === 0) {
       // We're done, calculate results
       this.finish();
       return;
@@ -151,12 +163,20 @@ export class Bisect extends Component<{
 
   finish() {
     if (this.args.debug) {
-      console.log('done');
+      console.log(`in debug mode, we don't complete.`);
       return;
     }
     this.router.transitionTo('results', {
       queryParams: {
-        choices: this.choices,
+        choices: JSON.stringify(
+          this.choices.map((choice) => {
+            return {
+              index: choice.index,
+              isCorrect: choice.isCorrect,
+              color: formatHex(choice.color),
+            };
+          })
+        ),
       },
     });
   }
@@ -164,12 +184,16 @@ export class Bisect extends Component<{
   <template>
     <Color class="color" @value={{this.currentColor}}>
       <Header>
-        <button {{on "click" this.chooseLeft}}>More {{this.leftName}}</button>
+        <button type="button" {{on "click" this.chooseLeft}}>More
+          {{this.leftName}}</button>
         <span>|</span>
-        <button {{on "click" this.chooseRight}}>More {{this.rightName}}</button>
+        <button type="button" {{on "click" this.chooseRight}}>More
+          {{this.rightName}}</button>
       </Header>
     </Color>
-    {{yield this.choices this.currentColor}}
+    {{yield
+      (hash choices=this.choices color=this.currentColor window=this.window)
+    }}
     <style>
       .color {
         height: 100dvh;

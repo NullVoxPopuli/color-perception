@@ -14,7 +14,7 @@
     "build": "vite build",
     "lint": "concurrently \"pnpm:lint:*(!fix)\" --names \"lint:\"",
     "lint:css": "stylelint \"**/*.css\"",
-    "lint:css:fix": "concurrently \"pnpm:lint:css -- --fix\"",
+    "lint:css:fix": "pnpm lint:css --fix",
     "lint:fix": "concurrently \"pnpm:lint:*:fix\" --names \"fix:\"",
     "lint:hbs": "ember-template-lint .",
     "lint:hbs:fix": "ember-template-lint . --fix",
@@ -110,6 +110,7 @@
     "culori": "^4.0.1",
     "ember-primitives": "^0.27.1",
     "ember-resources": "^7.0.3",
-    "nearest-color": "^0.4.4"
+    "nearest-color": "^0.4.4",
+    "reactiveweb": "^1.3.0"
   }
 }

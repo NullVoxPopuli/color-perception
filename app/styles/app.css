@@ -1,12 +1,40 @@
 /* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
 
-html, body {
+html,
+body {
   padding: 0;
   margin: 0;
 
-  font-family: System UI, System, Helvetica, Arial, sans-serif;
+  font-family:
+    System UI,
+    System,
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+.results-overlay {
+  position: fixed;
+  top: 0;
+  height: 100dvh;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  gap: 1rem;
+
+  .color {
+    width: 4rem;
+    height: 4rem;
+    font-size: 2rem;
+    text-shadow: 0px 1px 0px black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid;
+  }
 }

@@ -56,18 +56,23 @@ export function selectRandomNonCenter(start: number, end: number): number {
   const useLastThird = rand >= 0.5;
 
   if (useFirstThird) {
-    const result = rand * (oneThird - start) + start;
-
-    return Math.round(result);
+    return selectRandomBetween(start, oneThird);
   }
 
   if (useLastThird) {
-    const result = rand * (end - lastThird) + lastThird;
-
-    return Math.round(result);
+    return selectRandomBetween(lastThird, end);
   }
 
   assert(`Invalid random value ${String(rand)}`);
+}
+
+export function selectRandomBetween(start: number, end: number) {
+  const rand = Math.random();
+  const range = end - start;
+
+  const result = rand * range + start;
+
+  return Math.round(result);
 }
 
 /**
@@ -86,4 +91,27 @@ export function middleThird(start: number, end: number) {
   }
 
   return result;
+}
+
+/**
+ * Reflects over the midpoint created by start and end
+ */
+export function opposing(start: number, end: number, a: number) {
+  const middle = (end - start) / 2 + start;
+
+  const diff = Math.abs(a - middle);
+
+  return a < middle ? middle + diff : middle - diff;
+}
+
+export function twoStopsForWindow(start: number, end: number, a: number) {
+  const middle = (end - start) / 2 + start;
+
+  const diff = Math.abs(a - middle);
+  const delta = diff / 2;
+
+  return [
+    selectRandomBetween(start + delta, end - delta),
+    selectRandomBetween(start + delta, end - delta),
+  ];
 }

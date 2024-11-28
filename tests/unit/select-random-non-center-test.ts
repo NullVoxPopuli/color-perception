@@ -1,5 +1,29 @@
-import { selectRandomNonCenter, middleThird } from 'color-perception/utils';
+import {
+  selectRandomNonCenter,
+  middleThird,
+  opposing,
+} from 'color-perception/utils';
 import { module, test } from 'qunit';
+
+module('opposing', function () {
+  test('it works', function (assert) {
+    // 0, 1, [2], 3, 4
+    assert.strictEqual(opposing(0, 4, 1), 3);
+    assert.strictEqual(opposing(0, 4, 3), 1);
+
+    // 10, 11, [12], 13, 14
+    assert.strictEqual(opposing(10, 14, 11), 13);
+    assert.strictEqual(opposing(10, 14, 13), 11);
+
+    // 2, 3, [4, 5], 6, 7
+    assert.strictEqual(opposing(2, 7, 3), 6);
+    assert.strictEqual(opposing(2, 7, 6), 3);
+    assert.strictEqual(opposing(2, 7, 4), 5);
+    assert.strictEqual(opposing(2, 7, 5), 4);
+    assert.strictEqual(opposing(2, 7, 2), 7);
+    assert.strictEqual(opposing(2, 7, 7), 2);
+  });
+});
 
 module('middleThird', function () {
   test('it works', function (assert) {
