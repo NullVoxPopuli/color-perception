@@ -49,14 +49,16 @@ resourceFactory(appValue);
  */
 export function selectRandomNonCenter(start: number, end: number): number {
   const rand = Math.random();
-  const range = end - start;
-  const oneThird = (end - start) / 3;
-  const lastThird = (range / 3) * 2;
   const useFirstThird = rand < 0.5;
   const useLastThird = rand >= 0.5;
+  const middle = [...middleThird(start, end).values()];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const firstThird = middle[0]! - 1;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const lastThird = middle.at(-1)! + 1;
 
   if (useFirstThird) {
-    return selectRandomBetween(start, oneThird);
+    return selectRandomBetween(start, firstThird);
   }
 
   if (useLastThird) {
@@ -83,7 +85,7 @@ export function middleThird(start: number, end: number) {
   const range = end - start;
   const third = range / 3;
 
-  const result = new Set();
+  const result = new Set<number>();
 
   for (let i = 0; i < third; i++) {
     const value = Math.round(start + third + i);

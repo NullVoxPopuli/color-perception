@@ -30,6 +30,7 @@ module('middleThird', function () {
     const arr = (s: number, e: number) => [...middleThird(s, e).values()];
     // Starting at 0
     assert.deepEqual(arr(0, 13), [4, 5, 6, 7, 8]);
+    assert.deepEqual(arr(0, 14), [5, 6, 7, 8, 9]);
     assert.deepEqual(arr(0, 2), [1]);
     assert.deepEqual(arr(0, 3), [1]);
 
@@ -49,10 +50,14 @@ module('middleThird', function () {
 module('selectRandomNonCenter()', function () {
   (
     [
-      [0, 13],
+      // [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14]
+      [0, 14],
+      // [0], [1], [2]
       [0, 2],
+      // [0], [1, 2], [3]
       [0, 3],
-      [2, 11],
+      // [2, 3, 4], [5, 6, 7], [8, 9, 10]
+      [2, 10],
     ] as Array<[number, number]>
   ).forEach((range) => {
     const neverEmit = middleThird(...range);
