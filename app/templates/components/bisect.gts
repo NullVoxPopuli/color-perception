@@ -14,6 +14,8 @@ import type RouterService from '@ember/routing/router-service';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
 import { link } from 'reactiveweb/link';
 import { Window } from './window';
+import { registerDestructor } from '@ember/destroyable';
+import type Owner from '@ember/owner';
 
 export interface Choice {
   color: Oklch;
@@ -23,16 +25,44 @@ export interface Choice {
   actual: 'left' | 'right';
 }
 
-export class Bisect extends Component<{
+function isNotTouchDevice() {
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return !isTouch;
+}
+
+interface Signature {
   Args: { start: string; end: string; debug: boolean };
   Blocks: {
     default: [data: { choices: Choice[]; color: Oklch; window: Window }];
   };
-}> {
+}
+
+export class Bisect extends Component<Signature> {
   @service('stops') declare stops: Stops;
   @service('router') declare router: RouterService;
 
   @link(Window) declare window: Window;
+
+  constructor(owner: Owner, args: Signature['Args']) {
+    super(owner, args);
+
+    if (isNotTouchDevice()) {
+      const handle = (event: KeyboardEvent) => {
+        switch (event.key) {
+          case 'ArrowLeft':
+            this.chooseLeft();
+            return;
+          case 'ArrowRight':
+            this.chooseRight();
+            return;
+        }
+      };
+      document.addEventListener('keyup', handle);
+      registerDestructor(this, () => {
+        document.removeEventListener('keyup', handle);
+      });
+    }
+  }
 
   choices: Choice[] = new TrackedArray();
 
@@ -145,7 +175,6 @@ export class Bisect extends Component<{
 
     const next = this.window.next();
 
-    console.log(this.choices);
     if (next) {
       return;
     }
@@ -183,12 +212,23 @@ export class Bisect extends Component<{
 
   <template>
     <Color class="color" @value={{this.currentColor}}>
+      <span class="color-label">{{colorAbbr this.currentColor}}</span>
       <Header>
-        <button type="button" {{on "click" this.chooseLeft}}>More
-          {{this.leftName}}</button>
+        <button type="button" {{on "click" this.chooseLeft}}>
+          More
+          {{this.leftName}}
+          {{#if (isNotTouchDevice)}}
+            <kbd>Left</kbd>
+          {{/if}}
+        </button>
         <span>|</span>
         <button type="button" {{on "click" this.chooseRight}}>More
-          {{this.rightName}}</button>
+          {{this.rightName}}
+
+          {{#if (isNotTouchDevice)}}
+            <kbd>Right</kbd>
+          {{/if}}
+        </button>
       </Header>
     </Color>
     {{yield
@@ -198,6 +238,14 @@ export class Bisect extends Component<{
       .color {
         height: 100dvh;
         width: 100dvw;
+
+        .color-label {
+          position: fixed;
+          top: 0.5rem;
+          right: 0.5rem;
+          color: white;
+          mix-blend-mode: difference;
+        }
       }
       header {
         display: flex;
@@ -213,7 +261,17 @@ export class Bisect extends Component<{
         button {
           width: 100%;
         }
+        kbd {
+        }
       }
     </style>
   </template>
+}
+
+function colorAbbr(color: Oklch) {
+  const l = Math.round(color.l * 100) / 100;
+  const c = Math.round(color.c * 100) / 100;
+  const h = Math.round(color.h || 0);
+
+  return `oklch(${String(l)} ${String(c)} ${String(h)}°)`;
 }

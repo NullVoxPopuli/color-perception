@@ -59,14 +59,9 @@ export class Window {
   }
 
   addStops() {
-    const start = this.left;
-    const end = this.right;
-    const middle = (end - start) / 2 + start;
-
-    const diff = Math.abs(this.current - middle);
-    const delta = diff / 2;
-
-    return this.queue.push(selectRandomBetween(start + delta, end - delta));
+    const stop = selectRandomBetween(this.left, this.right);
+    console.log({ stop });
+    return this.queue.push(stop);
   }
 
   anchorLeft() {
