@@ -14,7 +14,7 @@ body {
 .results-overlay {
   position: fixed;
   top: 0;
-  height: 100dvh;
+  height: calc(100dvh - 84px);
   left: 0;
   right: 0;
   display: flex;

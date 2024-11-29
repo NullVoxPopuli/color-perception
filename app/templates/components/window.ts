@@ -1,4 +1,3 @@
-import { tracked } from '@glimmer/tracking';
 import { TrackedArray } from 'tracked-built-ins';
 import {
   opposing,
@@ -6,16 +5,37 @@ import {
   selectRandomNonCenter,
 } from 'color-perception/utils';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
+import { cell } from 'ember-resources';
 
 /**
  * We have a moving window of ranges to work with
  */
-export class Window {
-  @tracked current = selectRandomNonCenter(0, SEARCH_SIZE);
+export class AmorphousWindow {
+  // Decorators are broken. Same issue with @use elsewhere.
+  // the descriptor is undefined.
+  #current = cell(selectRandomNonCenter(0, SEARCH_SIZE));
   // Left-most boundary
-  @tracked left = 0;
+  #left = cell(0);
   // Right-most boundary
-  @tracked right = SEARCH_SIZE;
+  #right = cell(SEARCH_SIZE);
+  get current() {
+    return this.#current.current;
+  }
+  set current(value) {
+    this.#current.set(value);
+  }
+  get left() {
+    return this.#left.current;
+  }
+  set left(value) {
+    this.#left.set(value);
+  }
+  get right() {
+    return this.#right.current;
+  }
+  set right(value) {
+    this.#right.set(value);
+  }
 
   seen = new Set<number>([this.current]);
   queue = new TrackedArray([this.current]);
@@ -61,6 +81,11 @@ export class Window {
   addStops() {
     const stop = selectRandomBetween(this.left, this.right);
     return this.queue.push(stop);
+  }
+
+  narrowInOn(index: number) {
+    this.left = Math.max(index - 5, 0);
+    this.right = Math.min(index + 5, SEARCH_SIZE);
   }
 
   anchorLeft() {

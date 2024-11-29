@@ -12,7 +12,7 @@ import { assert } from '@ember/debug';
 import { TrackedArray } from 'tracked-built-ins';
 import type RouterService from '@ember/routing/router-service';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
-import { Window } from './window';
+import { AmorphousWindow } from './window';
 import { registerDestructor } from '@ember/destroyable';
 import type Owner from '@ember/owner';
 
@@ -30,9 +30,11 @@ function isNotTouchDevice() {
 }
 
 interface Signature {
-  Args: { start: string; end: string; debug: boolean };
+  Args: { start: string; end: string; debug?: boolean };
   Blocks: {
-    default: [data: { choices: Choice[]; color: Oklch; window: Window }];
+    default: [
+      data: { choices: Choice[]; color: Oklch; window: AmorphousWindow },
+    ];
   };
 }
 
@@ -40,7 +42,7 @@ export class Bisect extends Component<Signature> {
   @service('stops') declare stops: Stops;
   @service('router') declare router: RouterService;
 
-  window = new Window();
+  window = new AmorphousWindow();
 
   constructor(owner: Owner, args: Signature['Args']) {
     super(owner, args);
@@ -119,7 +121,40 @@ export class Bisect extends Component<Signature> {
       return;
     }
 
-    if (this.window.range < 3) {
+    const errors = this.errors;
+    if (this.window.range < 10) {
+      console.debug(`Range is small (< 10)`);
+      if (errors.length < 3 && errors.length > 0) {
+        console.debug(`There are < 3 errors`);
+        const nonErrors = this.choices.filter((choice) => choice.isCorrect);
+        /**
+         * Finding the error with the largest gap from correct
+         * guesses
+         */
+        let error = errors[0];
+        const smallestRange = Infinity;
+
+        for (const e of errors) {
+          let delta = Infinity;
+          for (const non of nonErrors) {
+            const cDelta = Math.abs(non.index - e.index);
+            if (cDelta < delta) {
+              delta = cDelta;
+            }
+          }
+          if (delta < smallestRange) {
+            error = e;
+          }
+        }
+
+        console.debug({ smallestRange });
+        if (error && smallestRange > 10) {
+          this.window.narrowInOn(error.index);
+        } else {
+          console.debug(`No sufficient range to re-evaluate errors`);
+        }
+      }
+
       console.debug(`Window size is small. Not adding more colors`);
       // Pair is very narrow already, no need to add more colors
       this.maybeFinish();

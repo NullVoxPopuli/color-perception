@@ -7,7 +7,7 @@ import { Gradient } from './components/gradient';
 import { Choice } from './components/choice';
 import type Stops from 'color-perception/services/stops';
 import { service } from '@ember/service';
-import { Window } from './components/window';
+import { AmorphousWindow } from './components/window';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
 
 export default Route(
@@ -60,13 +60,14 @@ export default Route(
       .color {
         width: 200px;
         height: 200px;
-        border: 1px solid;
+        border-right: 1px solid;
+        border-bottom: 1px solid;
       }
     </style>
   </template>
 );
 
-class Range extends Component<{ Args: { window: Window } }> {
+class Range extends Component<{ Args: { window: AmorphousWindow } }> {
   @service declare stops: Stops;
 
   get leftPosition() {

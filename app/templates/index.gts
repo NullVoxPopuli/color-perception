@@ -13,6 +13,7 @@ export default Route(
         <h1>Is my "{{name}}" your "{{name}}"?</h1>
       {{/let}}
       <div class="wrapper">
+        <LinkTo class="debug" @route="debug">debug</LinkTo>
 
         <Header>
           <nav>
@@ -30,6 +31,14 @@ export default Route(
         z-index: 1;
         height: 100dvh;
         width: 100dvw;
+      }
+      .debug {
+        position: fixed;
+        top: 0.5rem;
+        left: 0.5rem;
+        font-size: 0.8rem;
+        color: white;
+        mix-blend-mode: difference;
       }
       h1 {
         padding: 1rem;
