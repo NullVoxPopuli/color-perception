@@ -68,7 +68,7 @@ const Baseline = <template>
     bottom: 0;
     z-index: 1;
     "
-  >Baseline middle</div>
+  ><span style="position: absolute;">Baseline middle</span></div>
 </template>;
 
 type QPChoice = [
