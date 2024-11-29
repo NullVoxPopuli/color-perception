@@ -10,7 +10,12 @@ export default Route(
     <Gradient @start={{qp "start"}} @end={{qp "end"}}>
 
       {{#let (nearestName (qp "start")) as |name|}}
-        <h1>Is my "{{name}}" your "{{name}}"?</h1>
+        <h1><span>Is my
+            <span class="title-color-name">{{name}}</span></span><br />
+          <span class="indented">your
+            <span class="title-color-name">{{name}}</span><span
+              class="title-question"
+            >?</span></span></h1>
       {{/let}}
       <div class="wrapper">
         <LinkTo class="debug" @route="debug">debug</LinkTo>
@@ -44,10 +49,27 @@ export default Route(
         padding: 1rem;
         z-index: 2;
         margin: 0 auto;
+        text-align: center;
         font-size: 3rem;
-        filter: invert(1) drop-shadow(0px 3px 4px rgba(0, 0, 0, 0.75));
+        font-size: calc(100% + 3dvw);
+        filter: invert(1) drop-shadow(0px 2px 0px rgba(0, 0, 0, 0.75));
         /* mix-blend-mode: color-burn; */
         align-self: center;
+
+        .title-color-name {
+          display: inline-block;
+          text-decoration: underline;
+        }
+        .title-question {
+          display: inline-block;
+          font-size: calc(100% + 3.2dvw);
+          transform: rotateZ(10deg);
+        }
+      }
+      @media only screen and (min-width: 600px) {
+        h1 .indented {
+          padding-left: 8rem;
+        }
       }
     </style>
   </template>
