@@ -1,13 +1,6 @@
 import type { TOC } from '@ember/component/template-only';
+import { colorFor } from 'color-perception/utils';
 import type { Oklch } from 'culori';
-
-function colorFor(value: string | Oklch) {
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  return `oklch(${String(value.l)} ${String(value.c)} ${String(value.h)}deg)`;
-}
 
 export const Color = <template>
   <div

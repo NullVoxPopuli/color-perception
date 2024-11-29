@@ -233,11 +233,13 @@ export class Bisect extends Component<Signature> {
       queryParams: {
         choices: JSON.stringify(
           this.choices.map((choice) => {
-            return {
-              index: choice.index,
-              isCorrect: choice.isCorrect,
-              color: formatHex(choice.color),
-            };
+            return [
+              choice.index,
+              choice.isCorrect ? 1 : 0,
+              choice.choice === 'left' ? 0 : 1,
+              choice.actual === 'left' ? 0 : 1,
+              formatHex(choice.color),
+            ];
           })
         ),
       },

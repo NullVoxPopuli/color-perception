@@ -19,6 +19,7 @@ body {
   right: 0;
   display: flex;
   gap: 1rem;
+  z-index: 2;
 
   .color {
     width: 4rem;
@@ -46,4 +47,24 @@ kbd {
   line-height: 1;
   padding: 2px 4px;
   white-space: nowrap;
+}
+
+.choice-wrapper {
+  position: absolute;
+  transform: translateX(-50%);
+
+  menu {
+    max-width: 300px;
+    padding: 1rem;
+  }
+
+  button {
+    border: none;
+    background: none;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
 }

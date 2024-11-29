@@ -2,7 +2,10 @@ import {
   selectRandomNonCenter,
   middleThird,
   opposing,
+  hexRGBToOklch,
+  round100,
 } from 'color-perception/utils';
+import { formatHex, type Oklch } from 'culori';
 import { module, test } from 'qunit';
 
 module('opposing', function () {
@@ -76,5 +79,28 @@ module('selectRandomNonCenter()', function () {
         );
       }
     });
+  });
+});
+
+module('hexRGBToOklch', function () {
+  function lchStr(lch: Oklch) {
+    return `${round100(lch.l)},${round100(lch.c)},${round100(lch.h || 0)}`;
+  }
+  function works(hex: string, oklch: string) {
+    QUnit.assert.strictEqual(
+      formatHex(hexRGBToOklch(hex)),
+      hex,
+      `confirm symmetric conversion of ${hex}`
+    );
+    QUnit.assert.strictEqual(
+      lchStr(hexRGBToOklch(hex)),
+      oklch,
+      `${hex} is converted to oklch`
+    );
+  }
+
+  test('it works', function () {
+    // https://oklch.com/#59.06,0.2246,258.6,100
+    works(`#0074ff`, `0.59,0.22,258.6`);
   });
 });

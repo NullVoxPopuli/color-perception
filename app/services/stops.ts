@@ -1,15 +1,8 @@
 import Service from '@ember/service';
 import { cached } from '@glimmer/tracking';
-import { qp } from 'color-perception/utils';
+import { hexRGBToOklch, qp } from 'color-perception/utils';
 import { use } from 'ember-resources';
-import {
-  interpolate,
-  samples,
-  parseHex,
-  convertLabToLch,
-  convertLrgbToOklab,
-  type Oklch,
-} from 'culori';
+import { interpolate, samples, type Oklch } from 'culori';
 
 export const SEARCH_SIZE = 111;
 
@@ -31,20 +24,10 @@ export default class Stops extends Service {
   }
 
   get startOKLCH() {
-    const parsed = parseHex(this.start);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const oklab = convertLrgbToOklab(parsed);
-    const oklch = convertLabToLch(oklab, 'oklch');
-    return oklch;
+    return hexRGBToOklch(this.start);
   }
   get endOKLCH() {
-    const parsed = parseHex(this.end);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const oklab = convertLrgbToOklab(parsed);
-    const oklch = convertLabToLch(oklab, 'oklch');
-    return oklch;
+    return hexRGBToOklch(this.end);
   }
 
   @cached

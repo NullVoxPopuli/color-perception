@@ -54,6 +54,9 @@ export default ts.config(
       parserOptions: parserOptions.esm.ts,
     },
     extends: [...ts.configs.strictTypeChecked, ...emberRecommended],
+    rules: {
+      '@typescript-eslint/restrict-template-expressions': 'off',
+    },
   },
   {
     files: ['**/*.gjs'],
@@ -83,6 +86,9 @@ export default ts.config(
       ...emberRecommended,
       ...gtsRecommended,
     ],
+    rules: {
+      '@typescript-eslint/restrict-template-expressions': 'off',
+    },
   },
   {
     files: ['tests/**/*-test.{js,gjs}'],

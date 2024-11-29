@@ -4,6 +4,7 @@ import { nearestName } from './components/utils';
 import { Header } from './components/header';
 import { LinkTo } from '@ember/routing';
 import { qp } from 'color-perception/utils';
+import { ExternalLink } from 'ember-primitives/components/external-link';
 
 export default Route(
   <template>
@@ -18,10 +19,16 @@ export default Route(
             >?</span></span></h1>
       {{/let}}
       <div class="wrapper">
-        <LinkTo class="debug" @route="debug">debug</LinkTo>
+        <nav aria-label="secondary nav">
+          <LinkTo class="debug" @route="debug">debug</LinkTo>
+          <ExternalLink
+            href="https://github.com/NullVoxPopuli/color-perception"
+            class="github"
+          >GitHub</ExternalLink>
+        </nav>
 
         <Header>
-          <nav>
+          <nav aria-label="main nav">
             <LinkTo @route="configure">Change Colors</LinkTo>
             <LinkTo @route="bisect">Begin Test</LinkTo>
           </nav>
@@ -37,13 +44,17 @@ export default Route(
         height: 100dvh;
         width: 100dvw;
       }
-      .debug {
+      nav#nav-info {
         position: fixed;
         top: 0.5rem;
         left: 0.5rem;
-        font-size: 0.8rem;
-        color: white;
-        mix-blend-mode: difference;
+        display: flex;
+        gap: 0.75rem;
+        a {
+          font-size: 0.8rem;
+          color: white;
+          mix-blend-mode: difference;
+        }
       }
       h1 {
         padding: 1rem;

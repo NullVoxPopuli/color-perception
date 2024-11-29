@@ -1,6 +1,12 @@
 import { resource, resourceFactory } from 'ember-resources';
 import { assert } from '@ember/debug';
 import type { Registry } from '@ember/service';
+import {
+  convertLabToLch,
+  parseHex,
+  convertRgbToOklab,
+  type Oklch,
+} from 'culori';
 
 // const defaultStart = '#ff0000';
 // const defaultEnd = '#ff00ff';
@@ -116,4 +122,33 @@ export function twoStopsForWindow(start: number, end: number, a: number) {
     selectRandomBetween(start + delta, end - delta),
     selectRandomBetween(start + delta, end - delta),
   ];
+}
+
+export function colorFor(value: string | Oklch) {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return `oklch(${value.l} ${value.c} ${value.h}deg)`;
+}
+
+export function hexRGBToOklch(hex: string) {
+  const parsed = parseHex(hex);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const oklab = convertRgbToOklab(parsed);
+  const oklch = convertLabToLch(oklab, 'oklch');
+  return oklch;
+}
+
+export function round10(num: number) {
+  return Math.round(num * 10) / 10;
+}
+
+export function round100(num: number) {
+  return Math.round(num * 100) / 100;
+}
+
+export function round1000(num: number) {
+  return Math.round(num * 1000) / 1000;
 }
