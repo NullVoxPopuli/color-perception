@@ -122,8 +122,15 @@ export class Bisect extends Component<Signature> {
     }
 
     const errors = this.errors;
-    if (this.window.range < 10) {
-      console.debug(`Range is small (< 10)`);
+    const maxError = Math.max(...errors.map((error) => error.index));
+    const minError = Math.min(...errors.map((error) => error.index));
+    const include = [
+      minError ? minError - 5 : null,
+      maxError ? maxError + 5 : null,
+    ].filter(Boolean);
+
+    if (this.window.range < 5) {
+      console.debug(`Range is small (< 5)`);
       if (errors.length < 3 && errors.length > 0) {
         console.debug(`There are < 3 errors`);
         const nonErrors = this.choices.filter((choice) => choice.isCorrect);
@@ -148,7 +155,7 @@ export class Bisect extends Component<Signature> {
         }
 
         console.debug({ smallestRange });
-        if (error && smallestRange > 10) {
+        if (error && smallestRange > 5) {
           this.window.narrowInOn(error.index);
         } else {
           console.debug(`No sufficient range to re-evaluate errors`);
@@ -169,7 +176,7 @@ export class Bisect extends Component<Signature> {
             `Color chosen *is* more ${this.leftName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          this.window.anchorLeft();
+          this.window.anchorLeft({ include });
           this.window.addStops();
           break;
         }
@@ -178,7 +185,7 @@ export class Bisect extends Component<Signature> {
           console.debug(
             `Color chosen *is not* more ${this.leftName}. Next colors will be closer to the left side (${this.leftName})`
           );
-          this.window.slideLeft(this.window.askingRange / 2);
+          this.window.slideLeft(this.window.askingRange / 2, { include });
           this.window.addStops();
           break;
         }
@@ -190,7 +197,7 @@ export class Bisect extends Component<Signature> {
           console.debug(
             `Color chosen *is not* more ${this.rightName}. Next colors will be closer to the right side (${this.rightName})`
           );
-          this.window.slideRight(this.window.askingRange / 2);
+          this.window.slideRight(this.window.askingRange / 2, { include });
           this.window.addStops();
           break;
         }
@@ -200,7 +207,7 @@ export class Bisect extends Component<Signature> {
             `Color chosen *is* more ${this.rightName}. Next colors will be closer to the middle`
           );
           // Get closer to center
-          this.window.anchorRight();
+          this.window.anchorRight({ include });
           this.window.addStops();
           break;
         }

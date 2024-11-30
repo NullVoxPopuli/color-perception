@@ -9,6 +9,13 @@ import type Stops from 'color-perception/services/stops';
 import { service } from '@ember/service';
 import { AmorphousWindow } from './components/window';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
+import {
+  Baseline,
+  LeftName,
+  RightName,
+  YourMiddle,
+} from './components/results';
+import { nearestName } from './components/utils';
 
 export default Route(
   <template>
@@ -17,7 +24,11 @@ export default Route(
     <Gradient @start={{qp "start"}} @end={{qp "end"}}>
       <Bisect @start={{qp "start"}} @end={{qp "end"}} @debug={{true}} as |x|>
         <div class="debug-overlay">
+          <Baseline />
+          <LeftName @name={{nearestName (qp "start")}} />
+          <RightName @name={{nearestName (qp "end")}} />
           <Range @window={{x.window}} />
+          <YourMiddle @choices={{x.choices}} />
           {{#each x.choices as |choice|}}
             <Choice @choice={{choice}} />
           {{/each}}

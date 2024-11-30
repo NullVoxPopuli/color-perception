@@ -10,6 +10,12 @@ import { LinkTo } from '@ember/routing';
 import { nearestName } from './components/utils';
 import type { TOC } from '@ember/component/template-only';
 import { SEARCH_SIZE } from 'color-perception/services/stops';
+import {
+  Baseline,
+  LeftName,
+  RightName,
+  YourMiddle,
+} from './components/results';
 
 export default Route(
   <template>
@@ -30,46 +36,6 @@ export default Route(
     </Gradient>
   </template>
 );
-
-const LeftName = <template>
-  <span
-    style="
-    position: fixed;
-    top: 0.5rem;
-    left: 0.5rem;
-    color: white;
-    mix-blend-mode: difference;
-    "
-  >{{@name}}</span>
-</template> satisfies TOC<{ Args: { name: string } }>;
-const RightName = <template>
-  <span
-    style="
-    position: fixed;
-    top: 0.5rem;
-    right: 0.5rem;
-    color: white;
-    mix-blend-mode: difference;
-    "
-  >{{@name}}</span>
-</template> satisfies TOC<{ Args: { name: string } }>;
-
-const Baseline = <template>
-  <div
-    style="
-    position: absolute;
-    padding-left: 0.5rem;
-    left: 50%;
-    border-left: 2px dotted white;
-    transform: translateX(-50%);
-    color: white;
-    mix-blend-mode: luminocity;
-    top: 0;
-    bottom: 0;
-    z-index: 1;
-    "
-  ><span style="position: absolute;">Baseline middle</span></div>
-</template>;
 
 type QPChoice = [
   index: number,
@@ -95,42 +61,9 @@ export class Choices extends Component {
     return result;
   }
 
-  get averageErrorOffset() {
-    const errors = this.choices.filter((choice) => !choice.isCorrect);
-
-    let sum = 0;
-    errors.forEach((error) => (sum += error.index));
-    const avg = sum / errors.length;
-
-    return (avg / SEARCH_SIZE) * 100;
-  }
-
   <template>
     <div class="results-overlay">
-      <div
-        class="your-line"
-        style="
-          position: absolute;
-          padding-left: 0.5rem;
-          left: {{this.averageErrorOffset}}%;
-          border-left: 1px solid white;
-          transform: translateX(-50%);
-          color: white;
-          mix-blend-mode: luminocity;
-          top: 0;
-          bottom: 0;
-          z-index: 1;
-          display: flex;
-          align-items: end;
-          "
-      ><span
-          style="
-          position: absolute;
-          font-size: 2rem;
-          min-width: 200px;
-          transform: translateY(-100%);
-          "
-        >Your middle</span></div>
+      <YourMiddle @choices={{this.choices}} />
       {{#each this.choices as |choice|}}
         <Choice @choice={{choice}} />
       {{/each}}
