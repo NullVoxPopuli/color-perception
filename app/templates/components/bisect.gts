@@ -129,7 +129,7 @@ export class Bisect extends Component<Signature> {
     const include = [
       minError ? minError - 5 : null,
       maxError ? maxError + 5 : null,
-    ].filter(Boolean);
+    ].filter(Boolean) as number[];
 
     if (this.window.range < 5) {
       console.debug(`Range is small (< 5)`);
