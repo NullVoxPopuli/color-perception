@@ -11,13 +11,15 @@ export const Baseline = <template>
     left: 50%;
     border-left: 2px dotted white;
     transform: translateX(-50%);
-    color: white;
+    color: rgba(255, 255, 255, 0.7);
     mix-blend-mode: luminocity;
     top: 0;
     bottom: 0;
     z-index: 1;
     "
-  ><span style="position: absolute;">Baseline middle</span></div>
+  ><span
+      style="position: absolute;transform: translateX(-50%); width: max-content;"
+    >Baseline middle</span></div>
 </template>;
 
 export const LeftName = <template>
@@ -59,12 +61,13 @@ function errorOffset(choices: { isCorrect: boolean; index: number }[]) {
 }
 
 export const YourMiddle = <template>
-  <div class="your-line" style="left: {{errorOffset @choices}}%;"><span
-      class="the-line"
-    ></span><span class="label-container">
+  <span class="your-line the-line" style="left: {{errorOffset @choices}}%;">
+    <span class="diamond"></span>
+  </span>
+  <div class="your-line labels" style="left: {{errorOffset @choices}}%;">
+    <span class="label-container">
       <span class="you-call-start">You call this
         {{nearestName (qp "start")}}</span>
-      <span class="label"></span>
       <span class="you-call-end">You call this {{nearestName (qp "end")}}</span>
     </span>
   </div>
@@ -80,21 +83,52 @@ export const YourMiddle = <template>
       display: flex;
       align-items: end;
       justify-content: center;
+      pointer-events: none;
+
+      &.the-line {
+        background: white;
+        width: 2px;
+      }
+
+      &.labels {
+        bottom: 0.5rem;
+      }
+
+      &.the-line,
+      .you-call-end,
+      .you-call-start {
+        filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5));
+      }
+
+      .diamond {
+        display: block;
+        padding: 1rem;
+        width: 4rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        background: white;
+        transform: rotate(45deg);
+        aspect-ratio: 1;
+        font-size: 2rem;
+        color: black;
+        z-index: 1;
+      }
 
       .label-container {
         display: grid;
         grid-auto-flow: column;
-        grid-auto-columns: 2fr 1fr 2fr;
+        grid-auto-columns: 1fr 1fr;
         align-items: center;
-        gap: minmax(calc(100dvw / 100 + 1), 3rem);
+        gap: 4rem;
+        max-width: 100dvw;
 
         .you-call-end,
         .you-call-start {
           font-size: 1.5rem;
           width: max-content;
-          text-shadow: 0 0px 3px black;
           font-weight: bold;
           z-index: 2;
+          max-width: 35dvw;
         }
         .you-call-start {
           text-align: right;
@@ -104,25 +138,6 @@ export const YourMiddle = <template>
           text-align: left;
           justify-self: start;
         }
-        .label {
-          display: block;
-          padding: 1rem;
-          text-align: center;
-          background: white;
-          transform: rotate(45deg);
-          aspect-ratio: 1;
-          font-size: 2rem;
-          color: black;
-          z-index: 1;
-        }
-      }
-      .the-line {
-        background: white;
-        width: 1px;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        bottom: 0;
       }
     }
     .color-result-indicator {

@@ -8,8 +8,6 @@ import { use } from 'ember-resources';
 import { Header } from './components/header';
 import { LinkTo } from '@ember/routing';
 import { nearestName } from './components/utils';
-import type { TOC } from '@ember/component/template-only';
-import { SEARCH_SIZE } from 'color-perception/services/stops';
 import {
   Baseline,
   LeftName,

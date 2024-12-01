@@ -33,6 +33,12 @@ body {
   }
 }
 
+@media only screen and (width <= 600px) {
+  .results-overlay {
+    height: calc(100dvh - 61px);
+  }
+}
+
 kbd {
   background-color: #eee;
   border-radius: 3px;

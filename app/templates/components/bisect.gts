@@ -47,8 +47,10 @@ export class Bisect extends Component<Signature> {
   constructor(owner: Owner, args: Signature['Args']) {
     super(owner, args);
 
+    console.debug('Keyboard Enabled: ', isNotTouchDevice());
     if (isNotTouchDevice()) {
       const handle = (event: KeyboardEvent) => {
+        console.debug('pressed: ', { key: event.key });
         switch (event.key) {
           case 'ArrowLeft':
             this.chooseLeft();
