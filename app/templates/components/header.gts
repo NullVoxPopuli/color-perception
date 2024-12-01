@@ -22,7 +22,12 @@ export const Header = <template>
       a {
         color: white;
         font-size: 3rem;
-        font-size: calc(100% + 3dvw);
+      }
+
+      @media only screen and (max-width: 600px) {
+        a {
+          font-size: 2rem;
+        }
       }
     }
   </style>

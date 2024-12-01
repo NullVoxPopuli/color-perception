@@ -7,6 +7,10 @@ import {
 import { SEARCH_SIZE } from 'color-perception/services/stops';
 import { cell } from 'ember-resources';
 
+interface MoveOptions {
+  include?: number[];
+}
+
 /**
  * We have a moving window of ranges to work with
  */
@@ -63,6 +67,11 @@ export class AmorphousWindow {
     return Math.abs(this.opposing - this.current);
   }
 
+  /**
+   * TODO:
+   * - don't shrink window passed an error
+   * - don't expand a window passed a successful choice
+   */
   next() {
     let first = this.queue.shift();
 
@@ -79,7 +88,12 @@ export class AmorphousWindow {
   }
 
   addStops() {
-    const stop = selectRandomBetween(this.left, this.right);
+    let stop = selectRandomBetween(this.left, this.right);
+
+    while (this.seen.has(stop)) {
+      stop = selectRandomBetween(this.left, this.right);
+    }
+
     return this.queue.push(stop);
   }
 
@@ -88,39 +102,72 @@ export class AmorphousWindow {
     this.right = Math.min(index + 5, SEARCH_SIZE);
   }
 
-  anchorLeft() {
-    const increment = Math.min(this.range / 10, 1);
+  anchorLeft(options?: MoveOptions) {
+    const increment = Math.min(this.range / 100, 1);
     this.left = this.current;
     this.right -= Math.round(increment);
 
     if (this.range < 1) {
       this.right = this.left + 1;
     }
+
+    if (options?.include) {
+      this.include(options.include);
+    }
   }
-  anchorRight() {
-    const increment = Math.min(this.range / 10, 1);
+  anchorRight(options?: MoveOptions) {
+    const increment = Math.min(this.range / 100, 1);
     this.right = this.current;
     this.left += Math.round(increment);
 
     if (this.range < 1) {
       this.right = this.left + 1;
     }
+
+    if (options?.include) {
+      this.include(options.include);
+    }
   }
 
-  slideLeft(amount: number) {
+  slideLeft(amount: number, options?: MoveOptions) {
     this.left = Math.max(this.left - amount, 0);
     this.right = Math.max(this.right - amount, this.left);
 
     if (this.range < 1) {
       this.right = this.left + 1;
     }
+
+    if (options?.include) {
+      this.include(options.include);
+    }
   }
-  slideRight(amount: number) {
+  slideRight(amount: number, options?: MoveOptions) {
     this.right = Math.min(this.right + amount, SEARCH_SIZE);
     this.left = Math.min(this.left + amount, this.right);
 
     if (this.range < 1) {
       this.right = this.left + 1;
+    }
+
+    if (options?.include) {
+      this.include(options.include);
+    }
+  }
+
+  include(indicies: number[]) {
+    const min = Math.min(...indicies);
+    const max = Math.max(...indicies);
+
+    if (min !== -Infinity /* empty */) {
+      if (this.left > min) {
+        this.left = min;
+      }
+    }
+
+    if (max !== Infinity /* empty */) {
+      if (this.right < max) {
+        this.right = max;
+      }
     }
   }
 }
