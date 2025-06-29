@@ -77,6 +77,14 @@ export class Bisect extends Component<Signature> {
     return value;
   }
 
+  get complete() {
+    return this.choices.length;
+  }
+
+  get total() {
+    return this.complete + this.window.queue.length;
+  }
+
   get errors() {
     return this.choices.filter((choice) => !choice.isCorrect);
   }
@@ -133,7 +141,7 @@ export class Bisect extends Component<Signature> {
 
     if (this.window.range < 5) {
       console.debug(`Range is small (< 5)`);
-      if (errors.length < 3 && errors.length > 0) {
+      if (errors.length < 3) {
         console.debug(`There are < 3 errors`);
         const nonErrors = this.choices.filter((choice) => choice.isCorrect);
         /**
@@ -257,7 +265,14 @@ export class Bisect extends Component<Signature> {
 
   <template>
     <Color class="color" @value={{this.currentColor}}>
-      <span class="color-label">{{colorAbbr this.currentColor}}</span>
+      <span class="corner-status">
+        <span class="color-label">{{colorAbbr this.currentColor}}</span>
+        <span class="progress">
+          {{this.complete}}
+          /
+          {{this.total}}
+        </span>
+      </span>
       <Header>
         <button type="button" {{on "click" this.chooseLeft}}>
           More
@@ -284,12 +299,16 @@ export class Bisect extends Component<Signature> {
         height: 100dvh;
         width: 100dvw;
 
-        .color-label {
+        .corner-status {
           position: fixed;
           top: 0.5rem;
           right: 0.5rem;
           color: white;
           mix-blend-mode: difference;
+          display: grid;
+          gap: 0.5rem;
+          justify-items: end;
+          text-shadow: 0px 1px 0px black;
         }
       }
       header {

@@ -75,7 +75,11 @@ export class AmorphousWindow {
   next() {
     let first = this.queue.shift();
 
-    while (first !== undefined && this.seen.has(first)) {
+    while (
+      first !== undefined &&
+      this.seen.has(first) &&
+      this.queue.length > 0
+    ) {
       first = this.queue.shift();
     }
 
@@ -91,7 +95,12 @@ export class AmorphousWindow {
     let stop = selectRandomBetween(this.left, this.right);
 
     while (this.seen.has(stop)) {
-      stop = selectRandomBetween(this.left, this.right);
+      const nextStop = selectRandomBetween(this.left, this.right);
+
+      if (stop === nextStop) {
+        break;
+      }
+      stop = nextStop;
     }
 
     return this.queue.push(stop);
